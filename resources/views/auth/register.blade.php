@@ -66,8 +66,8 @@
                     <p class="text-muted">Gérez vos dépenses partagées facilement.</p>
                 </div>
 
-                <form>
-
+                <form action="{{ route('registerUser') }}" method="POST">
+                    @csrf
                     <!-- Name -->
                     <div class="mb-3">
                         <label class="form-label">Nom complet</label>
@@ -75,7 +75,7 @@
                             <span class="input-group-text bg-light">
                                 <i class="bi bi-person"></i>
                             </span>
-                            <input type="text" class="form-control" placeholder="Votre nom">
+                            <input type="text" name="nomComplet" class="form-control" placeholder="Votre nom">
                         </div>
                     </div>
 
@@ -86,7 +86,7 @@
                             <span class="input-group-text bg-light">
                                 <i class="bi bi-envelope"></i>
                             </span>
-                            <input type="email" class="form-control" placeholder="email@example.com">
+                            <input type="email" name="email" class="form-control" placeholder="email@example.com">
                         </div>
                     </div>
 
@@ -97,7 +97,7 @@
                             <span class="input-group-text bg-light">
                                 <i class="bi bi-lock"></i>
                             </span>
-                            <input type="password" id="password" class="form-control" placeholder="********">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="********">
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
                                 <i class="bi bi-eye"></i>
                             </button>

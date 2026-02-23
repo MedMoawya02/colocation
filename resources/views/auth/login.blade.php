@@ -65,8 +65,8 @@
                     <p class="text-muted">Entrez vos informations pour accéder à votre compte.</p>
                 </div>
 
-                <form>
-
+                <form action="{{ route('loginCheck') }}" method="POST">
+                    @csrf
                     <!-- Email -->
                     <div class="mb-3">
                         <label class="form-label">Adresse Email</label>
@@ -74,8 +74,11 @@
                             <span class="input-group-text bg-light">
                                 <i class="bi bi-envelope"></i>
                             </span>
-                            <input type="email" class="form-control" placeholder="email@example.com">
+                            <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="email@example.com">
                         </div>
+                        @error('email')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <!-- Password -->
@@ -85,7 +88,8 @@
                             <span class="input-group-text bg-light">
                                 <i class="bi bi-lock"></i>
                             </span>
-                            <input type="password" id="login-password" class="form-control" placeholder="********">
+                            <input type="password" name="password" id="login-password" class="form-control"
+                                placeholder="********">
                             <button class="btn btn-outline-secondary" type="button" onclick="toggleLoginPassword()">
                                 <i class="bi bi-eye"></i>
                             </button>
@@ -93,12 +97,12 @@
                     </div>
 
                     <!-- Remember Me -->
-                    <div class="form-check mb-4">
+                    {{-- <div class="form-check mb-4">
                         <input class="form-check-input" type="checkbox" id="remember">
                         <label class="form-check-label" for="remember">
                             Se souvenir de moi
                         </label>
-                    </div>
+                    </div> --}}
 
                     <!-- Button -->
                     <button type="submit" class="btn btn-primary w-100 py-2">
@@ -108,7 +112,8 @@
                     <!-- Register link -->
                     <div class="text-center mt-4">
                         <small>Pas encore de compte ?
-                            <a href="{{ route('registerForm') }}" class="text-decoration-none fw-semibold">Créer un compte</a>
+                            <a href="{{ route('registerForm') }}" class="text-decoration-none fw-semibold">Créer un
+                                compte</a>
                         </small>
                     </div>
 
