@@ -14,4 +14,8 @@ class Colocation extends Model
     public function users(){
         return $this->belongsToMany(User::class,'membership');
     }
+
+    public function invitation(){
+        return $this->hasMany(Invitation::class);
+    }
 }
