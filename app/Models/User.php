@@ -46,4 +46,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function colocations(){
+        return $this->belongsToMany(Colocation::class,'membership');
+    }
 }
