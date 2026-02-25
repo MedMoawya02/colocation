@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\ColocationInvitation;
 use App\Models\Colocation;
 use App\Models\Invitation;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -13,6 +14,11 @@ class InvitationController extends Controller
     public function send(Request $request, Colocation $colocation)
     {
         $request->validate(['email' => 'required|email']);
+        $user=User::where('email',$request->email)->first();
+        if(!$user){
+            return back()->with('error','Email n exsite pas' );
+        }
+
         $token = str::random(22);
         $invitation = Invitation::create([
             'colocation_id' => $colocation->id,

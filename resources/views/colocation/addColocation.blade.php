@@ -1,5 +1,60 @@
 @extends('layout.master')
+<style>
+    .avatar-circle {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+    }
 
+    .btn-gradient {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: white;
+        border: none;
+    }
+
+    .btn-gradient:hover {
+        opacity: 0.9;
+        color: white;
+    }
+
+    /* modal depense */
+    .premium-input {
+        border-radius: 12px;
+        padding: 10px 14px;
+        border: 1px solid #e5e7eb;
+        transition: 0.2s;
+    }
+
+    .premium-input:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 0.15rem rgba(99, 102, 241, 0.2);
+    }
+
+    .premium-select {
+        border-radius: 12px;
+        padding: 10px 14px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: white;
+        border: none;
+    }
+
+    .btn-gradient:hover {
+        opacity: 0.9;
+        color: white;
+    }
+</style>
 @section('content')
 
     @if(!$colocation)
@@ -18,54 +73,180 @@
 
     @else
 
-        <!-- Card Colocation -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="row g-0 align-items-center">
+        <div class="bg-white shadow-sm rounded-4 p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
 
-                <!-- Image -->
-                <div class="col-md-3">
-                    <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae" class="img-fluid rounded-start"
-                        style="height:180px; object-fit:cover;" alt="colocation">
+                <!-- 🏠 Nom Colocation -->
+                <div class="text-end">
+                    <h3 class="fw-bold mb-0">
+                        {{ $colocation->name }}
+                    </h3>
+                    <small class="text-muted">
+                        Tableau de bord
+                    </small>
                 </div>
+                <!-- 👤 User Info -->
+                <div class="d-flex align-items-center">
 
-                <!-- Infos -->
-                <div class="col-md-6">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">
-                            {{ $colocation->name }}
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            {{ $colocation->users->count() }} membres
-                        </p>
+                    <!-- Avatar lettre -->
+                    <div class="avatar-circle me-3">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                     </div>
-                </div>
 
-                <!-- Actions -->
-                <div class="col-md-3 text-center">
-                    <div class="p-3">
-                        <!-- Bouton Inviter membre (Owner seulement) -->
-                        @if(auth()->user()->colocations()->wherePivot('role', 'owner')->exists())
-                            <button type="button" class="btn btn-outline-success btn-sm mb-2 w-100" data-bs-toggle="modal"
-                                data-bs-target="#inviteModal">
-                                Inviter membre
-                            </button>
-                        @endif
-                        <a href="#" class="btn btn-outline-primary btn-sm mb-2 w-100">
-                            Voir détails
-                        </a>
-
-                        <form action="#" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-outline-danger btn-sm w-100">
-                                Supprimer
-                            </button>
-                        </form>
+                    <!-- Nom -->
+                    <div>
+                        <h6 class="mb-0 fw-semibold">
+                            {{ auth()->user()->name }}
+                        </h6>
+                        <small class="text-muted">
+                            Membre de la colocation
+                        </small>
                     </div>
                 </div>
 
             </div>
+            <div>
+                @if ($colocation->isOwner(auth()->user()))
+                    <form action="#" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button class="btn btn-outline-danger rounded-pill px-4">
+                            🔒 Clôturer la colocation
+                        </button>
+                    </form>
+                @endif
+            </div>
+        </div>
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+            </div>
+        @endif
+        <div class="row">
+
+            <!-- 🧾 Dépenses -->
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body">
+
+                        <!-- Header -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0">
+                                🧾 Liste des Dépenses
+                            </h5>
+
+                            <button class="btn btn-gradient rounded-3 px-4" data-bs-toggle="modal"
+                                data-bs-target="#addExpenseModal">
+                                ➕ Ajouter Dépense
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Payeur</th>
+                                        <th>Montant</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @foreach($colocation->expenses as $expense)
+                                        <tr>
+                                            <td class="fw-semibold">
+                                                {{ $expense->title }}
+                                                <small>
+                                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary mt-1">
+                                                        {{ $expense->category?->name ?? 'Sans catégorie' }}
+                                                    </span>
+                                                </small>
+                                            </td>
+
+                                            <td>
+                                                {{ $expense->user->name }}
+                                            </td>
+
+                                            <td class="fw-bold text-success">
+                                                {{ $expense->amount }} MAD
+                                            </td>
+
+                                            <td class="text-end">
+                                                <form action="{{ route('depense.destroy', $expense->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-sm btn-outline-danger">
+                                                        Supprimer
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 👥 Membres -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-4">
+                            👥 Membres
+                        </h5>
+
+                        @foreach($colocation->users as $user)
+                            <div class="member-card d-flex justify-content-between align-items-center p-3 mb-3 rounded-4">
+
+                                <!-- Partie gauche -->
+                                <div class="d-flex align-items-center">
+
+                                    <!-- Avatar -->
+                                    <div class="avatar-circle me-3">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+
+                                    <!-- Nom + role -->
+                                    <div>
+                                        <div class="fw-semibold">
+                                            {{ $user->name }}
+                                        </div>
+                                        <small class="text-muted">
+                                            {{ ucfirst($user->pivot->role) }}
+                                        </small>
+                                    </div>
+
+                                </div>
+
+                                <!-- Badge Role -->
+                                @if($user->pivot->role == 'owner')
+                                    <span class="badge bg-primary px-3 py-2">Owner</span>
+                                @else
+                                    <span class="badge bg-secondary px-3 py-2">Member</span>
+                                @endif
+
+                            </div>
+                        @endforeach
+
+
+                        <!-- Bouton inviter -->
+                        <div class="d-grid mt-4">
+                            <button class="btn btn-outline-primary rounded-3" data-bs-toggle="modal"
+                                data-bs-target="#inviteModal">
+                                ➕ Inviter un membre
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
         <!-- Modal -->
         <div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
@@ -75,7 +256,7 @@
                         <h5 class="modal-title" id="inviteModalLabel">Inviter un membre</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                     </div>
-                    <form action="{{ route('colocation.invite',$colocation->id)}}" method="POST">
+                    <form action="{{ route('colocation.invite', $colocation->id)}}" method="POST">
                         @csrf
                         <div class="modal-body">
 
@@ -91,9 +272,92 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-success">Envoyer l’invitation</button>
+                            <button type="submit" class="btn btn-primary">Envoyer l’invitation</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- modal ajouter depense --}}
+        <div class="modal fade" id="addExpenseModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">➕ Ajouter une Dépense</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <form action="{{ route('depense.store', $colocation->id) }}" method="POST">
+                            @csrf
+
+                            <!-- Titre -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Titre</label>
+                                <input type="text" name="title" class="form-control premium-input"
+                                    placeholder="Ex: Courses Marjane" required>
+                            </div>
+
+                            <!-- Montant -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Montant (MAD)</label>
+                                <input type="number" step="0.01" name="amount" class="form-control premium-input"
+                                    placeholder="0.00" required>
+                            </div>
+
+                            <!-- Payeur -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Payeur</label>
+                                <select name="user_id" class="form-select premium-select" required>
+                                    <option disabled selected>Choisir le payeur</option>
+                                    @foreach($colocation->users as $user)
+                                        <option value="{{ $user->id }}">
+                                            {{ $user->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Catégorie -->
+                            <div class="mb-2">
+                                <label class="form-label fw-semibold">Catégorie</label>
+                                <select name="category_id" class="form-select premium-select" id="categorySelect" required>
+                                    <option disabled selected>Choisir une catégorie</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}">
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Bouton créer catégorie -->
+                            <div class="mb-3 text-end">
+                                <button type="button" class="btn btn-sm btn-link text-decoration-none"
+                                    onclick="toggleCategoryInput()">
+                                    ➕ Nouvelle catégorie
+                                </button>
+                            </div>
+
+                            <!-- Input nouvelle catégorie -->
+                            <div class="mb-3 d-none" id="newCategoryDiv">
+                                <input type="text" name="new_category" class="form-control premium-input"
+                                    placeholder="Nom de la nouvelle catégorie">
+                            </div>
+
+                            <!-- Submit -->
+                            <div class="d-grid mt-4">
+                                <button class="btn btn-gradient rounded-3 py-2">
+                                    Ajouter Dépense
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -101,3 +365,15 @@
     @endif
 
 @endsection
+<script>
+    function toggleCategoryInput() {
+        document.getElementById('newCategoryDiv').classList.toggle('d-none');
+    }
+
+    setTimeout(()=>{
+        const alertMsg=document.querySelector('.alert');
+        if(alertMsg){
+            alertMsg.classList.remove('show');
+        }
+    },3000)
+</script>

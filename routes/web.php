@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ColocationController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
@@ -22,6 +23,9 @@ Route::post('/logout',[LoginController::class,'logout'])->name('logout');
 Route::get('/colocation',[ColocationController::class,'index'])->name('colocationPage');
 Route::get('/colocation/create', [ColocationController::class, 'create'])->name('colocationCreate');
 Route::post('/colocation/store', [ColocationController::class, 'store'])->name('colocationStore');
+Route::post('/depense/{colocation}/store', [ExpenseController::class, 'store'])->name('depense.store');
+Route::delete('/depense/{id}/destroy', [ExpenseController::class, 'destroy'])->name('depense.destroy');
+
 
 // Envoyer une invitation à un email pour une colocation spécifique
 Route::post('/colocation/{colocation}/invite', [InvitationController::class, 'send'])
