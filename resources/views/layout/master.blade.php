@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <title>ColocApp</title>
@@ -32,7 +33,7 @@
         }
 
         .sidebar a:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .logo {
@@ -53,37 +54,40 @@
 
 <body>
 
-<div class="container-fluid">
-    <div class="row">
+    <div class="container-fluid">
+        <div class="row">
 
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 sidebar">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar">
 
-            <div class="logo">
-                🏠 ColocApp
+                <div class="logo">
+                    🏠 ColocApp
+                </div>
+                @if(auth()->check() && auth()->user()->isAdmin())
+                    <a href="{{ route('admin.dashboard') }}">🛠️ Dashboard Admin</a>
+                @endif
+                <a href="#">📌 Colocations</a>
+                <a href="#">💰 Dépenses</a>
+                <a href="#">⚙️ Paramètres</a>
+
+                <!-- Logout Button -->
+                <form action="{{ route('logout') }}" method="POST" class="logout-btn">
+                    @csrf
+                    <button type="submit" class="btn btn-light w-100">
+                        Se déconnecter
+                    </button>
+                </form>
+
             </div>
 
-            <a href="#">📌 Colocations</a>
-            <a href="#">💰 Dépenses</a>
-            <a href="#">⚙️ Paramètres</a>
-
-            <!-- Logout Button -->
-            <form action="{{ route('logout') }}" method="POST" class="logout-btn">
-                @csrf
-                <button type="submit" class="btn btn-light w-100">
-                    Se déconnecter
-                </button>
-            </form>
+            <!-- Content -->
+            <div class="col-md-9 col-lg-10 content">
+                @yield('content')
+            </div>
 
         </div>
-
-        <!-- Content -->
-        <div class="col-md-9 col-lg-10 content">
-            @yield('content')
-        </div>
-
     </div>
-</div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </html>

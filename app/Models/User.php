@@ -22,7 +22,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'isActive'
+        'isActive',
+        'is_banned',
     ];
 
     /**
@@ -62,5 +63,8 @@ class User extends Authenticatable
     public function expenses(){
         return $this->belongsToMany(Expense::class,'paiments')->withPivot('amount_due', 'is_paid', 'paid_at')
                 ->withTimestamps();
+    }
+    public function isAdmin(){
+        return $this->role==='admin';
     }
 }
