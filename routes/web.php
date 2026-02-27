@@ -23,9 +23,11 @@ Route::post('/logout',[LoginController::class,'logout'])->name('logout');
 Route::get('/colocation',[ColocationController::class,'index'])->name('colocationPage');
 Route::get('/colocation/create', [ColocationController::class, 'create'])->name('colocationCreate');
 Route::post('/colocation/store', [ColocationController::class, 'store'])->name('colocationStore');
+Route::patch('/colocation/{colocation}/close', [ColocationController::class, 'close'])
+    ->name('colocation.close');
 Route::post('/depense/{colocation}/store', [ExpenseController::class, 'store'])->name('depense.store');
 Route::delete('/depense/{id}/destroy', [ExpenseController::class, 'destroy'])->name('depense.destroy');
-
+Route::post('/expense/{expense}/mark-paid',[ExpenseController::class,'payee'])->name('expense.markPaid');
 
 // Envoyer une invitation à un email pour une colocation spécifique
 Route::post('/colocation/{colocation}/invite', [InvitationController::class, 'send'])

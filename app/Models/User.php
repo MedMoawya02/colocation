@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'isActive'
     ];
 
     /**
@@ -48,6 +49,18 @@ class User extends Authenticatable
     }
 
     public function colocations(){
-        return $this->belongsToMany(Colocation::class,'membership');
+        return $this->belongsToMany(Colocation::class,'membership','user_id',
+        'colocation_id')->withPivot('role','left_at')->withTimestamps();
+    }
+
+
+    public function activeColocation(){
+        return $this->belongsToMany(Colocation::class,'membership','user_id',
+        'colocation_id')->withPivot('role','left_at')->where('isActive',1)->with('users')->withTimestamps()->first();
+    }
+
+    public function expenses(){
+        return $this->belongsToMany(Expense::class,'paiments')->withPivot('amount_due', 'is_paid', 'paid_at')
+                ->withTimestamps();
     }
 }

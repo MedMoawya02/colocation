@@ -27,4 +27,9 @@ class Expense extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function users() {
+        return $this->belongsToMany(User::class,'paiments')->withPivot('amount_due', 'is_paid', 'paid_at')
+                ->withTimestamps();;
+    }
 }

@@ -13,8 +13,9 @@ class Colocation extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'membership')
-            ->withPivot('role')
+        return $this->belongsToMany(User::class, 'membership','colocation_id',
+        'user_id')
+            ->withPivot('role','left_at')
             ->withTimestamps();
     }
     public function expenses()
@@ -29,5 +30,17 @@ class Colocation extends Model
     public function isOwner(User $user){
         return $this->users()->where('user_id',$user->id)
                     ->wherePivot('role','owner')->exists();
+    }
+
+    public function balances(){
+        $members=$this->users;
+        $totalAmount=$this->expenses()->sum('amount');
+        $sharedAmount=$totalAmount/$members->count();
+        $balances=[];
+        foreach ($members as $member) {
+            $paid=$this->expenses->where('user_id',$member->id)->sum('amount');
+            $balances[$member->name]=$paid-$sharedAmount;
+        }
+        return $balances;
     }
 }

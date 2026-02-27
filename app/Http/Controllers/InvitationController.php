@@ -14,9 +14,9 @@ class InvitationController extends Controller
     public function send(Request $request, Colocation $colocation)
     {
         $request->validate(['email' => 'required|email']);
-        $user=User::where('email',$request->email)->first();
-        if(!$user){
-            return back()->with('error','Email n exsite pas' );
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return back()->with('error', 'Email n exsite pas');
         }
 
         $token = str::random(22);
@@ -30,26 +30,45 @@ class InvitationController extends Controller
         return back()->with('success', 'Invitation envoyée !');
     }
 
-    public function accept($token)
+   public function accept($token)
 {
-    $user = auth()->user(); // Assure-toi que l'utilisateur est connecté
+    $user = auth()->user();
 
     if (!$user) {
-        return redirect()->route('login')->with('error', 'Connectez-vous pour accepter l’invitation.');
+        return redirect()->route('loginForm')
+            ->with('error', 'Connectez-vous pour accepter l’invitation.');
     }
 
-    $invitation = Invitation::where('token', $token)->firstOrFail();
+    $invitation = Invitation::where('token', $token)
+        ->with('colocation')
+        ->firstOrFail();
 
+    // Vérifier que l'email correspond
+    if ($user->email !== $invitation->email) {
+        return redirect()->route('colocationPage')
+            ->with('error', 'Cette invitation ne vous appartient pas.');
+    }
+
+    // Si invitation déjà acceptée
     if ($invitation->status === 'accepted') {
-        return redirect()->route('colocationPage')->with('info', 'Vous avez déjà accepté cette invitation.');
+        return redirect()->route('colocationPage')
+            ->with('info', 'Vous avez déjà accepté cette invitation.');
     }
 
-    // Mettre la status à accepted
+    $colocation = $invitation->colocation;
+
+    // Vérifier si le membre est déjà dans la colocation
+    if (!$user->colocations()->where('colocation_id', $colocation->id)->exists()) {
+        $user->colocations()->attach($colocation->id, [
+            'role' => 'member',
+            'left_at' => null
+        ]);
+    }
+
+    // Mettre à jour le status de l'invitation
     $invitation->update(['status' => 'accepted']);
 
-    // Ajouter l'utilisateur à la colocation via pivot membership
-    $invitation->colocation->users()->attach($user->id, ['role' => 'member', 'left_at' => null]);
-
-    return redirect()->route('colocationPage')->with('success', 'Vous avez rejoint la colocation !');
+    return redirect()->route('colocationPage')
+        ->with('success', 'Vous avez rejoint la colocation !');
 }
 }

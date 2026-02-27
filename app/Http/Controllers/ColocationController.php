@@ -10,9 +10,10 @@ class ColocationController extends Controller
 {
     public function index()
     {
-        $colocation = auth()->user()->colocations()->with('users')->first();
+        $colocation = auth()->user()->activeColocation();
         $categories=Category::all();
-        return view('colocation.addColocation', compact('colocation','categories'));
+        $balances = $colocation ? $colocation->balances() : [];
+        return view('colocation.addColocation', compact('colocation','categories','balances'));
     }
     public function create()
     {
@@ -32,5 +33,16 @@ class ColocationController extends Controller
         $colocation->users()->attach($user->id,['role'=>'owner']);
         return redirect()->route('colocationPage')
                      ->with('success', 'Colocation créée avec succès.');
+    }
+
+    public function close(Colocation $colocation){
+        $user=auth()->user();
+        $role=$colocation->users()->where('user_id',$user->id)->first()?->pivot;
+        if(!$role||$role->role!=='owner'){
+             return redirect()->back()->with('error', 'Vous n’êtes pas autorisé à clôturer cette colocation.');
+        }
+        $colocation->update(['isActive'=>false]);
+          return redirect()->route('colocationPage')
+        ->with('success', 'La colocation a été clôturée. Vous pouvez créer une nouvelle colocation.');
     }
 }
